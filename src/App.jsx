@@ -199,7 +199,7 @@ const load = (k, d) => { try { const s = localStorage.getItem(k); return s ? JSO
 const save = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch {} };
 
 // ========== MAIN COMPONENT ==========
-export default function ConsensusChronicle() {
+export default function App() {
   const [view, setView] = useState('home');
   const [player, setPlayer] = useState(() => load('cc_player', { id: `p_${Date.now()}`, name: '', avatar: '🎮', tokens: 100, totalEarned: 0 }));
   const [room, setRoom] = useState(null);
@@ -559,7 +559,7 @@ export default function ConsensusChronicle() {
       <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
         {/* Left */}
         <div style={{ flex: 1, display: 'flex', flexDirection: 'column', padding: '0.75rem', gap: '0.75rem', overflow: 'hidden' }}>
-          {/* Story - Fixed */}
+          {/* Story */}
           <div style={{ ...card, padding: '0.75rem', flexShrink: 0 }}>
             <div style={{ fontSize: '0.7rem', color: '#555', marginBottom: '0.5rem' }}>{STORY_ARCS[room?.theme]?.icon} {STORY_ARCS[room?.theme]?.name}</div>
             {story.slice(-2).map((s, i) => (
@@ -570,7 +570,7 @@ export default function ConsensusChronicle() {
             ))}
           </div>
 
-          {/* Options - Fixed */}
+          {/* Options */}
           {(phase === 'debate' || phase === 'vote') && currentOptions.a && (
             <div style={{ ...card, padding: '0.75rem', flexShrink: 0 }}>
               <div style={{ fontSize: '0.8rem', color: '#888', marginBottom: '0.75rem', textAlign: 'center' }}>What should we do?</div>
@@ -614,9 +614,9 @@ export default function ConsensusChronicle() {
           )}
         </div>
 
-        {/* Right - Chat SCROLLABLE */}
+        {/* Right - Chat */}
         <div style={{ width: '260px', display: 'flex', flexDirection: 'column', background: '#08080a', borderLeft: '1px solid #151518', flexShrink: 0 }}>
-          {/* Players - Fixed */}
+          {/* Players */}
           <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.25rem', padding: '0.5rem', borderBottom: '1px solid #151518', flexShrink: 0 }}>
             {players.map(p => (
               <div key={p.id} style={{ display: 'flex', alignItems: 'center', gap: '0.2rem', padding: '0.2rem 0.4rem', background: votes[p.id] ? '#0a1a0a' : '#111', borderRadius: '10px', fontSize: '0.7rem' }}>
@@ -627,7 +627,7 @@ export default function ConsensusChronicle() {
             ))}
           </div>
           
-          {/* Messages - SCROLLABLE */}
+          {/* Messages */}
           <div ref={chatRef} style={{ flex: 1, overflowY: 'auto', padding: '0.5rem' }}>
             {messages.map(m => (
               <div key={m.id} style={{ marginBottom: '0.4rem', fontSize: '0.75rem' }}>
@@ -646,7 +646,7 @@ export default function ConsensusChronicle() {
             ))}
           </div>
           
-          {/* Input - Fixed */}
+          {/* Input */}
           {phase === 'debate' && (
             <div style={{ padding: '0.5rem', borderTop: '1px solid #151518', flexShrink: 0 }}>
               <div style={{ display: 'flex', gap: '0.3rem', marginBottom: '0.3rem' }}>
