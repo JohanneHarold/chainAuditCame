@@ -111,56 +111,6 @@ Each theme contains:
 - 2 options per decision (A/B)
 - Dynamic consequences based on path
 
-## Smart Contract
-
-### GenLayer Contract Structure
-
-```python
-# { "Depends": "py-genlayer:test" }
-
-from genlayer import *
-
-class ConsensusChronicle(gl.Contract):
-    total_games: u256
-    total_players: u256
-    
-    def __init__(self):
-        self.total_games = u256(0)
-        self.total_players = u256(0)
-    
-    @gl.public.write
-    def pay_fee(self) -> bool:
-        """Entry fee - 0 GEN during beta"""
-        return True
-    
-    @gl.public.write
-    def record_chronicle(
-        self,
-        room_id: str,
-        theme: str,
-        path: str,
-        player_count: u256,
-        winner_score: u256
-    ) -> bool:
-        """Record completed game on-chain"""
-        if not room_id or not theme:
-            return False
-        self.total_games = self.total_games + u256(1)
-        self.total_players = self.total_players + player_count
-        return True
-    
-    @gl.public.view
-    def get_total_games(self) -> u256:
-        return self.total_games
-    
-    @gl.public.view
-    def get_total_players(self) -> u256:
-        return self.total_players
-    
-    @gl.public.view
-    def get_stats(self) -> str:
-        return '{"games":' + str(self.total_games) + ',"players":' + str(self.total_players) + '}'
-```
 
 ### Why GenLayer?
 
@@ -169,50 +119,6 @@ class ConsensusChronicle(gl.Contract):
 3. **Low Gas**: Efficient for gaming transactions
 4. **Testnet Available**: Easy testing and iteration
 
-## Firebase Schema
-
-```javascript
-// Room data
-rooms/{roomId}: {
-  theme: "fantasy" | "scifi" | "mystery" | "political",
-  host: "0x...",
-  status: "waiting" | "playing" | "closed" | "expired",
-  createdAt: 1234567890,
-  players: {
-    "0x...": { id, name, avatar, exp, isAI }
-  }
-}
-
-// Game state
-games/{roomId}: {
-  round: 1-5,
-  phase: "debate" | "vote" | "ended",
-  path: ["A", "B", "A"],
-  scores: {
-    "0x...": { influence: 60, debates: 30, wins: 2 }
-  },
-  votes: { "0x...": "A" },
-  story: [{ text, type, round }],
-  messages: { ... },
-  timerEnd: 1234567890
-}
-
-// Player profiles
-players/{address}: {
-  name: "Hero",
-  avatar: "🎭",
-  exp: 500
-}
-
-// Game history
-userHistory/{address}/{historyId}: {
-  theme: "fantasy",
-  path: "ABABA",
-  ending: "...",
-  earnedExp: 120,
-  timestamp: 1234567890
-}
-```
 
 ## Security Considerations
 
@@ -249,9 +155,4 @@ Consensus Chronicle demonstrates how blockchain technology can enhance multiplay
 
 ---
 
-**Project Repository**: [GitHub Link]  
-**Live Demo**: [Vercel URL]  
-**Contract**: GenLayer Testnet  
-**Contact**: [Developer Info]
-
-*Built for GenLayer Hackathon 2025*
+*Built for GenLayer*
