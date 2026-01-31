@@ -36,7 +36,7 @@
 2. Copy contents of `contracts/ConsensusChronicle.py`
 3. Click **Deploy**
 4. Copy deployed contract address
-5. Update `CONFIG.GENLAYER_CONTRACT` in `index.html`
+5. Update in `index.html`
 
 ### 2. Configure Firebase
 
