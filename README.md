@@ -1,116 +1,224 @@
-# 共识编年史 - Consensus Chronicle
+# Consensus Chronicle
 
-**GenLayer 链上多人协作叙事游戏**
+> Blockchain-powered multiplayer storytelling game where collective decisions shape the narrative.
 
-⚠️ **这不是单机游戏** - 所有数据存储在 GenLayer 区块链上！
+[![GenLayer](https://img.shields.io/badge/Powered%20by-GenLayer-gold)](https://genlayer.com)
+[![Firebase](https://img.shields.io/badge/Real--time-Firebase-orange)](https://firebase.google.com)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
 
----
+## Overview
 
-## 🚀 完整部署流程
+**Consensus Chronicle** is a real-time multiplayer game combining collaborative storytelling with blockchain technology. Players join "chronicle rooms" to collectively write a story through debate and democratic voting. Results are permanently recorded on the GenLayer blockchain.
 
-### 步骤 1：部署智能合约到 GenLayer
+### Features
 
-1. 打开 [GenLayer Studio](https://studio.genlayer.com)
-2. 创建新合约
-3. 复制 `ConsensusChronicle.py` 全部代码，粘贴
-4. 点击 **Deploy** 部署
-5. ⚠️ **复制合约地址**（如 `0x1a2b3c...`）
+- **Real-time Multiplayer**: 4-8 players per room with AI companions
+- **Collaborative Storytelling**: 5 rounds of debate and voting per game
+- **Four Epic Themes**: Fantasy, Sci-Fi, Mystery, Political Intrigue
+- **Blockchain Integration**: Results recorded on GenLayer
+- **MetaMask Authentication**: Secure wallet-based identity
+- **Global Leaderboard**: Rankings by experience points
+- **Room Timer**: 2-minute countdown for room creation
 
-### 步骤 2：配置前端
+## Tech Stack
 
-打开 `index.html`，找到第 25 行：
+| Component | Technology | Purpose |
+|-----------|------------|---------|
+| Frontend | React (Single HTML) | Game interface |
+| Real-time | Firebase Realtime DB | Live game state sync |
+| Blockchain | GenLayer | Result recording |
+| Wallet | MetaMask | Player authentication |
+| Hosting | Vercel | Static deployment |
+
+## Quick Start
+
+### 1. Configure Firebase
+
+Update `CONFIG.FIREBASE` in `index.html`:
 
 ```javascript
-// ⚠️ 部署合约后，把合约地址填在这里！
-CONTRACT_ADDRESS: '', 
+FIREBASE: {
+  apiKey: "your-api-key",
+  authDomain: "your-project.firebaseapp.com",
+  databaseURL: "https://your-project-rtdb.firebaseio.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project.appspot.com",
+  messagingSenderId: "your-sender-id",
+  appId: "your-app-id"
+}
 ```
 
-改成：
+### 2. Deploy Smart Contract
 
-```javascript
-CONTRACT_ADDRESS: '0x你的合约地址',
+1. Open [GenLayer Studio](https://studio.genlayer.com)
+2. Copy contents of `contracts/ConsensusChronicle.py`
+3. Click **Deploy**
+4. Copy deployed contract address
+5. Update `CONFIG.GENLAYER_CONTRACT` in `index.html`
+
+### 3. Deploy to Vercel
+
+```bash
+npm i -g vercel
+vercel --prod
 ```
 
-### 步骤 3：部署到 Vercel
+Or drag `index.html` to Vercel dashboard.
 
-1. 打开 [vercel.com](https://vercel.com)
-2. New Project → Upload
-3. 上传 `index.html`
-4. Deploy
+## Game Flow
 
-### 步骤 4：开始游戏
+```
+1. Connect Wallet (MetaMask)
+2. Enter Player Name
+3. Choose Theme (Fantasy/Sci-Fi/Mystery/Political)
+4. Create or Join Room (GenLayer TX: 0 GEN)
+5. Wait for Players (AI joins after 60s if needed)
+6. Room Timer: 2 minutes to start game
+7. Game Loop (5 rounds):
+   - Debate Phase (60s): Discuss options A and B
+   - Vote Phase (20s): Choose your preferred option
+   - Result: Winning option advances story
+8. Chronicle Complete: 
+   - EXP saved to Firebase for ALL players
+   - Results recorded on GenLayer blockchain
+```
 
-1. 分享 Vercel URL 给其他玩家
-2. **所有人必须用同一个合约地址！**
-3. 一人创建房间，其他人加入
-4. 房主点击开始
+## Scoring System
 
----
+| Action | Points |
+|--------|--------|
+| Send debate message | +10 EXP (once per round) |
+| Vote for winning option | +30 EXP |
+| Tie vote | +0 (random path selected) |
 
-## 📁 文件清单
+**Note**: All real players in the room receive their earned EXP at game end.
 
-| 文件 | 用途 | 部署位置 |
-|------|------|----------|
-| `ConsensusChronicle.py` | 智能合约 | GenLayer Studio |
-| `index.html` | 前端界面 | Vercel |
+## Project Structure
 
----
+```
+consensus-chronicle/
+├── index.html                    # Main application (single-file React)
+├── contracts/
+│   ├── ConsensusChronicle.py     # GenLayer smart contract
+│   └── deploy.py                 # Deployment helper script
+├── docs/
+│   └── PROJECT_INTRODUCTION.md   # Detailed project overview
+├── vercel.json                   # Vercel routing config
+└── README.md                     # This file
+```
 
-## 🔗 链上存储的数据
+## Smart Contract
+
+**Network**: GenLayer Testnet
+
+### Contract Functions
+
+| Function | Type | Description |
+|----------|------|-------------|
+| `pay_fee()` | Write | Process game entry fee (0 GEN beta) |
+| `record_chronicle(room_id, theme, path, player_count, winner_score)` | Write | Save game results on-chain |
+| `get_total_games()` | View | Get total completed games |
+| `get_total_players()` | View | Get total player participations |
+| `get_stats()` | View | Get JSON statistics |
+
+### Contract Code
 
 ```python
-self.rooms = {}      # 游戏房间
-self.balances = {}   # 玩家余额  
-self.players = {}    # 玩家信息
-self.leaderboard = [] # 排行榜
+# { "Depends": "py-genlayer:test" }
+
+from genlayer import *
+
+class ConsensusChronicle(gl.Contract):
+    total_games: u256
+    total_players: u256
+    
+    def __init__(self):
+        self.total_games = u256(0)
+        self.total_players = u256(0)
+    
+    @gl.public.write
+    def pay_fee(self) -> bool:
+        return True
+    
+    @gl.public.write
+    def record_chronicle(self, room_id: str, theme: str, path: str, 
+                         player_count: u256, winner_score: u256) -> bool:
+        if not room_id or not theme:
+            return False
+        self.total_games = self.total_games + u256(1)
+        self.total_players = self.total_players + player_count
+        return True
+    
+    @gl.public.view
+    def get_total_games(self) -> u256:
+        return self.total_games
+    
+    @gl.public.view
+    def get_total_players(self) -> u256:
+        return self.total_players
 ```
 
-**不是 localStorage，是真正的区块链！**
+## Firebase Data Structure
+
+```
+firebase-root/
+├── rooms/{roomId}/
+│   ├── theme: string
+│   ├── host: address
+│   ├── status: "waiting" | "playing" | "closed" | "expired"
+│   ├── createdAt: timestamp
+│   └── players/{playerId}/
+│       ├── id, name, avatar, exp, isAI
+│
+├── games/{roomId}/
+│   ├── round: number (1-5)
+│   ├── phase: "debate" | "vote" | "ended"
+│   ├── path: string[]
+│   ├── scores/{playerId}/
+│   │   ├── influence, debates, wins
+│   ├── votes/{playerId}: "A" | "B"
+│   ├── story: array
+│   ├── messages/{msgId}/
+│   │   ├── type, text, sender, choice, timestamp
+│   └── timerEnd: timestamp
+│
+├── players/{address}/
+│   ├── name, avatar, exp
+│
+└── userHistory/{address}/{historyId}/
+    ├── theme, path, ending, earnedExp, timestamp
+```
+
+## Configuration
+
+Key settings in `index.html`:
+
+```javascript
+const CONFIG = {
+  GENLAYER_CONTRACT: '0x...', // Your deployed contract address
+  FIREBASE: { ... },          // Your Firebase config
+  ROOM_SIZE: { min: 4, max: 8 },
+  DEBATE_DURATION: 60,        // Seconds
+  VOTE_DURATION: 20,          // Seconds
+  TOTAL_ROUNDS: 5,
+  ROOM_TIMEOUT_AI: 60000,     // AI joins after 60s
+  ROOM_TIMEOUT_CLOSE: 120000  // Room expires after 2 mins
+};
+```
+
+## Troubleshooting
+
+| Issue | Solution |
+|-------|----------|
+| "Could not load contract schema" | Use correct GenLayer syntax (see contract code above) |
+| MetaMask not connecting | Ensure MetaMask is unlocked and on correct network |
+| Room not showing | Check Firebase rules allow read/write |
+| EXP not saving | Ensure all players are in Firebase before game starts |
+
+## License
+
+MIT License
 
 ---
 
-## 🎮 多人游戏流程
-
-```
-玩家A创建房间 ──→ 链上记录房间
-       ↓
-玩家B刷新看到房间 ──→ 从链上读取
-       ↓
-玩家B点击加入 ──→ 链上更新玩家列表
-       ↓
-玩家A开始游戏 ──→ 链上更新状态
-       ↓
-所有玩家投票 ──→ 链上记录投票
-       ↓
-全部投完后结算 ──→ 链上更新分数
-       ↓
-5轮后结束 ──→ 链上发放奖励
-```
-
----
-
-## ❓ 常见问题
-
-**Q: 页面显示"配置合约地址"怎么办？**
-→ 你没部署合约，或者没填地址
-
-**Q: 别人看不到我的房间？**
-→ 确认大家的 CONTRACT_ADDRESS 一样
-
-**Q: 怎么一起玩？**
-→ 同一个合约地址 + 同一个 Vercel URL
-
----
-
-## 技术架构
-
-```
-┌──────────┐      ┌─────────────┐      ┌────────────┐
-│  Vercel  │ ───▶ │ GenLayer    │ ───▶ │ Blockchain │
-│ (前端)   │ ◀─── │ RPC API     │ ◀─── │ (合约)     │
-└──────────┘      └─────────────┘      └────────────┘
-     ↑                                       ↑
-   玩家A ────────────────────────────────────┤
-   玩家B ────────────────────────────────────┤
-   玩家C ────────────────────────────────────┘
-```
+**Built for GenLayer Hackathon | Storytellers Unite** 🐉📜
